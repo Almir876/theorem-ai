@@ -1,0 +1,11 @@
+{
+  "curriculumId": "alevel",
+  "levelId": "math",
+  "title": "A-Level Mathematics",
+  "units": [
+    { "title": "Pure_Math", "icon": "π", "topics": ["Algebra_and_Functions", "Coordinate_Geometry", "Sequences_and_Series", "Differentiation", "Integration"] },
+    { "title": "Statistics", "icon": "∑", "topics": ["Data_Presentation", "Probability", "Statistical_Distributions"] },
+    { "title": "Mechanics", "icon": "⚙", "topics": ["Kinematics", "Forces_and_Newton_Laws", "Moments"] }
+  ]
+}
+

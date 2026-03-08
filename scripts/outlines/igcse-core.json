@@ -1,0 +1,60 @@
+{
+  "curriculumId": "igcse",
+  "levelId": "core",
+  "title": "Cambridge IGCSE Mathematics (Core)",
+  "units": [
+    {
+      "title": "Number",
+      "icon": "#",
+      "topics": [
+        "Integers_and_Place_Value",
+        "Fractions_and_Mixed_Numbers",
+        "Decimals_and_Percentages",
+        "Ratio_and_Proportion",
+        "Ordering_Numbers_and_Sets",
+        "Approximation_and_Estimation",
+        "Standard_Form_Basics"
+      ]
+    },
+    {
+      "title": "Algebra",
+      "icon": "α",
+      "topics": [
+        "Algebraic_Expressions_and_Notation",
+        "Expanding_and_Factorising_Simple_Expressions",
+        "Changing_the_Subject_of_a_Formula",
+        "Linear_Equations_in_One_Unknown",
+        "Simultaneous_Equations_Intro",
+        "Sequences_and_Patterns",
+        "Simple_Inequalities"
+      ]
+    },
+    {
+      "title": "Geometry_and_Measure",
+      "icon": "△",
+      "topics": [
+        "Lines_Angles_and_Parallel_Lines",
+        "Polygons_and_Angle_Sums",
+        "Pythagoras_Theorem_Basics",
+        "Area_of_2D_Shapes",
+        "Surface_Area_and_Volume_of_Prisms",
+        "Circles_Circumference_and_Area",
+        "Transformations_Reflection_Rotation_Enlargement",
+        "Bearings_and_Distance"
+      ]
+    },
+    {
+      "title": "Statistics",
+      "icon": "∑",
+      "topics": [
+        "Data_Collection_and_Sampling",
+        "Data_Representation_Tables_and_Charts",
+        "Bar_Charts_Pie_Charts_and_Histograms_Core_Level",
+        "Averages_Mean_Median_Mode",
+        "Range_and_Spread",
+        "Probability_Basics_and_Experiments"
+      ]
+    }
+  ]
+}
+

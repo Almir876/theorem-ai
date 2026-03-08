@@ -1,0 +1,13 @@
+{
+  "curriculumId": "ib",
+  "levelId": "aa-sl",
+  "title": "IB Mathematics: Analysis and Approaches (AA SL)",
+  "units": [
+    { "title": "Number_and_Algebra", "icon": "#", "topics": ["Arithmetic_and_Geometric_Sequences", "Exponents_and_Logs", "Financial_Math"] },
+    { "title": "Functions", "icon": "ƒ", "topics": ["Function_Concepts", "Transformations", "Inverse_and_Composition"] },
+    { "title": "Geometry_and_Trigonometry", "icon": "∿", "topics": ["Trigonometry_Basics", "Vectors_Intro", "Geometric_Reasoning"] },
+    { "title": "Statistics_and_Probability", "icon": "∑", "topics": ["Descriptive_Statistics", "Probability", "Correlation_and_Regression"] },
+    { "title": "Calculus", "icon": "∫", "topics": ["Limits_Intro", "Differentiation", "Integration_Intro"] }
+  ]
+}
+

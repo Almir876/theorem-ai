@@ -1,0 +1,50 @@
+{
+  "curriculumId": "commoncore",
+  "levelId": "grade-7",
+  "title": "US Common Core Grade 7",
+  "units": [
+    {
+      "title": "Ratios_and_Proportional_Relationships",
+      "icon": "R",
+      "topics": [
+        "Ratios_and_Rates",
+        "Proportional_Relationships",
+        "Percent_Applications"
+      ]
+    },
+    {
+      "title": "The_Number_System",
+      "icon": "#",
+      "topics": [
+        "Rational_Numbers",
+        "Operations_with_Rationals"
+      ]
+    },
+    {
+      "title": "Expressions_and_Equations",
+      "icon": "α",
+      "topics": [
+        "Algebraic_Expressions",
+        "Simple_Equations_and_Inequalities"
+      ]
+    },
+    {
+      "title": "Geometry",
+      "icon": "△",
+      "topics": [
+        "Scale_Drawings",
+        "Area_and_Circumference",
+        "Volume"
+      ]
+    },
+    {
+      "title": "Statistics_and_Probability",
+      "icon": "∑",
+      "topics": [
+        "Sampling_and_Populations",
+        "Random_Sampling_and_Inference"
+      ]
+    }
+  ]
+}
+

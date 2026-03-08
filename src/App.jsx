@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
 import { curriculumCatalog, getDefaultSelection, loadLevelContent } from "./content/index.js";
 import { auth } from "./firebase.js";
 import theoremLogo from "./assets/theorem-logo.svg";
-import streakIcon from "./assets/streak-icon.svg";
-import xpIcon from "./assets/xp-icon.svg";
-import masteredIcon from "./assets/mastered-icon.svg";
-import { logoutUser } from "./auth/login.js";
 import {
   loadUserProgress,
   markLessonCompleted,
@@ -38,15 +41,28 @@ function prettyLabel(s) {
 }
 
 function FireGlyph({ size = 24, className, style }) {
-  return <img src={streakIcon} alt="" aria-hidden="true" className={className} width={size} height={size} style={{ ...style, display:"block" }} />;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" className={className} style={{ ...style, display:"block" }}>
+      <path fill="#F59E0B" d="M12 2c1.2 3.4-1.2 4.9-1.2 7.2 0 1.8 1.5 2.8 2.8 2.8 2.5 0 3.8-2.3 3.8-4.6 2.2 2.2 3.6 5.2 3.6 8.5 0 4.5-3.6 8.1-8 8.1s-8-3.6-8-8.1c0-3.8 2.3-7 5.6-8.3-.5 2.5.6 4.7 2.6 4.7 1.3 0 2.5-1 2.5-2.7C15.7 6.7 13.1 5 12 2Z" />
+    </svg>
+  );
 }
 
 function XPGlyph({ size = 24, className, style }) {
-  return <img src={xpIcon} alt="" aria-hidden="true" className={className} width={size} height={size} style={{ ...style, display:"block" }} />;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" className={className} style={{ ...style, display:"block" }}>
+      <path fill="#60A5FA" d="M12 2 9.6 7.6 3.5 8.1l4.6 4-1.4 5.9L12 14.8 17.3 18l-1.4-5.9 4.6-4-6.1-.5z" />
+    </svg>
+  );
 }
 
 function MasteredGlyph({ size = 24, className, style }) {
-  return <img src={masteredIcon} alt="" aria-hidden="true" className={className} width={size} height={size} style={{ ...style, display:"block" }} />;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" className={className} style={{ ...style, display:"block" }}>
+      <path fill="#FACC15" d="M12 2 14.4 8.2 21 9l-5 4.4L17.6 20 12 16.7 6.4 20 8 13.4 3 9l6.6-.8z" />
+      <circle cx="12" cy="12" r="2.2" fill="#1F2937" />
+    </svg>
+  );
 }
 
 function AppIcon({ name, size=18, color="currentColor", stroke=2, style }) {
@@ -293,8 +309,8 @@ function NavBar({ active, go }) {
 //  SIGNUP PAGE (shown after onboarding)
 // ════════════════════════════════════════════════════════════════
 
-function SignupPage({ onDone, prefill }) {
-  const [mode, setMode] = useState("signup"); // "signup" | "login"
+function SignupPage({ onDone, prefill, initialMode = "signup" }) {
+  const [mode, setMode] = useState(initialMode); // "signup" | "login"
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -304,8 +320,6 @@ function SignupPage({ onDone, prefill }) {
     if (!email || !password) { setErr("Please fill in all fields."); return; }
     setLoading(true); setErr("");
     try {
-      const { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth } = await import("firebase/auth");
-      const auth = getAuth();
       if (mode === "signup") {
         await createUserWithEmailAndPassword(auth, email, password);
       } else {
@@ -320,8 +334,6 @@ function SignupPage({ onDone, prefill }) {
   const handleGoogle = async () => {
     setLoading(true); setErr("");
     try {
-      const { GoogleAuthProvider, signInWithPopup, getAuth } = await import("firebase/auth");
-      const auth = getAuth();
       await signInWithPopup(auth, new GoogleAuthProvider());
       onDone();
     } catch (e) {
@@ -402,6 +414,7 @@ function SignupPage({ onDone, prefill }) {
 
 function Onboarding({ onDone }) {
   // Steps: 0=welcome, 1=name, 2=curriculum, 3=level, 4=goal
+  const defaultSel = getDefaultSelection();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const MAX_NAME_LENGTH = 12;
@@ -412,6 +425,7 @@ function Onboarding({ onDone }) {
   const [levelId, setLevelId] = useState(saved.levelId || null);
   const [goal, setGoal] = useState(saved.dailyGoal || 50);
   const [showSignup, setShowSignup] = useState(false);
+  const [authStartMode, setAuthStartMode] = useState("signup");
 
   const TOTAL_STEPS = 4; // last onboarding question (goal)
   const ok = [true, name.trim().length>=2, !!curriculumId, !!levelId, true][step] ?? true;
@@ -479,6 +493,7 @@ function Onboarding({ onDone }) {
     return (
       <SignupPage
         prefill={{ curriculumLabel: prettyLabel(curriculumLabel), levelLabel: prettyLabel(levelLabel) }}
+        initialMode={authStartMode}
         onDone={() => onDone({ curriculumId, levelId, dailyGoal: goal, displayName: name.trim() })}
       />
     );
@@ -528,6 +543,23 @@ function Onboarding({ onDone }) {
             {name.trim().length > 0 && name.trim().length < 2 && (
               <p style={{ color:"#F87171", fontSize:12, marginTop:8 }}>Please enter at least 2 characters.</p>
             )}
+            <p style={{ textAlign:"center", color:"#6B7280", fontSize:13, margin:"14px 0 0" }}>
+              Already have an account?{" "}
+              <span
+                onClick={() => {
+                  const nextCurriculum = curriculumId || defaultSel.curriculumId;
+                  const nextLevel = levelId || defaultSel.levelId;
+                  setCurriculumId(nextCurriculum);
+                  setLevelId(nextLevel);
+                  try { localStorage.setItem("theorem_choices", JSON.stringify({ curriculumId: nextCurriculum, levelId: nextLevel, dailyGoal: goal })); } catch { /* Ignore private mode storage errors. */ }
+                  setAuthStartMode("login");
+                  setShowSignup(true);
+                }}
+                style={{ color:ACC, fontWeight:700, cursor:"pointer" }}
+              >
+                Sign in
+              </span>
+            </p>
           </div>
         )}
         {step===2 && (
@@ -1843,6 +1875,45 @@ function getCompletedLessons(skillsByLevel) {
   return completed;
 }
 
+function isDefaultSkillState(skillState) {
+  if (!skillState || typeof skillState !== "object") return true;
+  const progress = Number(skillState.progress) || 0;
+  const xp = Number(skillState.xp) || 0;
+  const reviewInterval = Number(skillState.reviewInterval) || 1;
+  return (
+    !skillState.mastered &&
+    progress <= 0 &&
+    xp <= 0 &&
+    !skillState.lastPracticed &&
+    !skillState.reviewDue &&
+    reviewInterval <= 1
+  );
+}
+
+function compactSkillsByLevel(skillsByLevel) {
+  const compact = {};
+  for (const [lvlKey, lvlSkills] of Object.entries(skillsByLevel || {})) {
+    const nextSkills = {};
+    for (const [skillId, skillState] of Object.entries(lvlSkills || {})) {
+      if (!isDefaultSkillState(skillState)) {
+        nextSkills[skillId] = skillState;
+      }
+    }
+    if (Object.keys(nextSkills).length > 0) {
+      compact[lvlKey] = nextSkills;
+    }
+  }
+  return compact;
+}
+
+function expandSkillsByLevel(skillsByLevel) {
+  const expanded = {};
+  for (const [lvlKey, lvlSkills] of Object.entries(skillsByLevel || {})) {
+    expanded[lvlKey] = { ...(lvlSkills || {}) };
+  }
+  return expanded;
+}
+
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
   :root {
@@ -2084,7 +2155,6 @@ export default function App() {
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState("Learner");
   const [authReady, setAuthReady] = useState(false);
-  const [progressReady, setProgressReady] = useState(false);
   const [progressHydrated, setProgressHydrated] = useState(false);
   const [ud, setUd] = useState({
     xp:0,
@@ -2129,7 +2199,7 @@ export default function App() {
         curriculumId: progress?.curriculumId || defaultSel.curriculumId,
         levelId: progress?.levelId || defaultSel.levelId,
       });
-      setSkillsByLevel(progress?.skillsByLevel || {});
+      setSkillsByLevel(expandSkillsByLevel(progress?.skillsByLevel || {}));
     };
 
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -2150,13 +2220,11 @@ export default function App() {
         setDeepDiveId(null);
         setScreen("home");
         setAuthReady(true);
-        setProgressReady(true);
         setProgressHydrated(true);
         return;
       }
 
       setAuthReady(true);
-      setProgressReady(true);
       setProgressHydrated(false);
       setUserId(user.uid);
 
@@ -2184,12 +2252,13 @@ export default function App() {
   }, [defaultSel.curriculumId, defaultSel.levelId]);
 
   useEffect(() => {
-    if (!userId || !progressReady || !progressHydrated) return;
+    if (!userId || !progressHydrated) return;
     if (persistTimeoutRef.current) {
       clearTimeout(persistTimeoutRef.current);
     }
 
     persistTimeoutRef.current = setTimeout(() => {
+      const compactSkills = compactSkillsByLevel(skillsByLevel);
       const snapshot = {
         streak: ud.streak,
         lastStreakDate: ud.lastStreakDate || null,
@@ -2198,8 +2267,8 @@ export default function App() {
         levelId: ud.levelId,
         onboarded,
         displayName: userName,
-        skillsByLevel,
-        completedLessons: getCompletedLessons(skillsByLevel),
+        skillsByLevel: compactSkills,
+        completedLessons: getCompletedLessons(compactSkills),
       };
       writeProgressCache(userId, snapshot);
       saveUserProgress(userId, snapshot).catch((err) => {
@@ -2212,7 +2281,7 @@ export default function App() {
         clearTimeout(persistTimeoutRef.current);
       }
     };
-  }, [onboarded, progressHydrated, progressReady, skillsByLevel, ud, userId, userName]);
+  }, [onboarded, progressHydrated, skillsByLevel, ud, userId, userName]);
 
   useEffect(() => {
     let alive = true;
@@ -2225,8 +2294,13 @@ export default function App() {
         setContentLoading(false);
         setSkillsByLevel(prev => {
           const k = levelKey(ud.curriculumId, ud.levelId);
-          if (prev[k]) return prev;
-          return { ...prev, [k]: buildDefaultSkills(c.skillMeta || [], c.allLessons || {}) };
+          const defaults = buildDefaultSkills(c.skillMeta || [], c.allLessons || {});
+          const current = prev[k] || {};
+          const merged = { ...defaults, ...current };
+          if (prev[k] && Object.keys(defaults).every((skillId) => current[skillId])) {
+            return prev;
+          }
+          return { ...prev, [k]: merged };
         });
       })
       .catch((e) => {
@@ -2360,7 +2434,7 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      await logoutUser();
+      await signOut(auth);
     } catch (err) {
       console.error("Failed to logout:", err);
     }

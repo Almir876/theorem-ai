@@ -1,57 +1,41 @@
-import masteredIcon from "../assets/icons/mastered.svg";
-import streakIcon from "../assets/icons/streak.svg";
-import xpIcon from "../assets/icons/xp.svg";
+import {
+  AreaChart,
+  BarChart3,
+  Flame,
+  GitCommitHorizontal,
+  Hexagon,
+  LineChart,
+  PieChart,
+  Sparkles,
+  Triangle,
+  TrendingUp,
+  Trophy,
+  Zap,
+} from "lucide-react";
 import { ACC } from "./uiUtils.js";
 
-function AssetGlyph({ src, size = 24, className, style, scale = 2.35 }) {
-  return (
-    <span
-      aria-hidden="true"
-      className={className}
-      style={{
-        width: size,
-        height: size,
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-        lineHeight: 0,
-        ...style,
-      }}
-    >
-      <img
-        src={src}
-        alt=""
-        style={{
-          width: size,
-          height: size,
-          display: "block",
-          transform: `scale(${scale})`,
-          transformOrigin: "center center",
-        }}
-      />
-    </span>
-  );
+function LucideGlyph({ Icon, size = 24, color = "currentColor", stroke = 2, className, style }) {
+  return <Icon size={size} color={color} strokeWidth={stroke} className={className} style={style} aria-hidden="true" />;
 }
 
-function FireGlyph({ size = 24, className, style }) {
-  return <AssetGlyph src={streakIcon} size={size} className={className} style={style} scale={1.35} />;
+function FireGlyph({ size = 24, className, style, color = "currentColor", stroke = 2 }) {
+  return <LucideGlyph Icon={Flame} size={size} color={color} stroke={stroke} className={className} style={style} />;
 }
 
-function XPGlyph({ size = 24, className, style }) {
-  return <AssetGlyph src={xpIcon} size={size} className={className} style={style} scale={1.35} />;
+function XPGlyph({ size = 24, className, style, color = "currentColor", stroke = 2 }) {
+  return <LucideGlyph Icon={Zap} size={size} color={color} stroke={stroke} className={className} style={style} />;
 }
 
-export function MasteredGlyph({ size = 24, className, style }) {
-  return <AssetGlyph src={masteredIcon} size={size} className={className} style={style} scale={1.35} />;
+export function MasteredGlyph({ size = 24, className, style, color = "currentColor", stroke = 2 }) {
+  return <LucideGlyph Icon={Trophy} size={size} color={color} stroke={stroke} className={className} style={style} />;
 }
 
 export function AppIcon({ name, size = 18, color = "currentColor", stroke = 2, style }) {
   const p = { fill: "none", stroke: color, strokeWidth: stroke, strokeLinecap: "round", strokeLinejoin: "round" };
   switch (name) {
-    case "xp": return <XPGlyph size={size} style={style} />;
-    case "streak": return <FireGlyph size={size} style={style} />;
-    case "trophy": return <MasteredGlyph size={size} style={style} />;
+    case "xp": return <XPGlyph size={size} color={color} stroke={stroke} style={style} />;
+    case "streak": return <FireGlyph size={size} color={color} stroke={stroke} style={style} />;
+    case "trophy": return <MasteredGlyph size={size} color={color} stroke={stroke} style={style} />;
     case "target": return <svg width={size} height={size} viewBox="0 0 24 24" style={style}><circle {...p} cx="12" cy="12" r="8" /><circle {...p} cx="12" cy="12" r="4" /><circle {...p} cx="12" cy="12" r="1.5" /></svg>;
     case "sparkle": return <svg width={size} height={size} viewBox="0 0 24 24" style={style}><path {...p} d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z" /><path {...p} d="M5 15l.8 1.8L8 18l-2.2.8L5 21l-.8-2.2L2 18l2.2-1.2z" /><path {...p} d="M19 14l.6 1.4L21 16l-1.4.6L19 18l-.6-1.4L17 16l1.4-.6z" /></svg>;
     case "star": return <svg width={size} height={size} viewBox="0 0 24 24" style={style}><path {...p} d="M12 3l2.7 5.5L21 9.3l-4.5 4.4L17.6 21 12 18l-5.6 3 1.1-7.3L3 9.3l6.3-.8z" /></svg>;
@@ -81,11 +65,11 @@ export function XPBar({ current, max }) {
   );
 }
 
-export function StreakFlame({ streak }) {
+export function StreakFlame({ streak, color = "currentColor" }) {
   const hot = streak > 0;
   return (
     <span className={`streak-fire ${hot ? "hot" : "cold"}`}>
-      <FireGlyph className="streak-flame-icon" size={38} />
+      <FireGlyph className="streak-flame-icon" size={38} color={color} />
     </span>
   );
 }
@@ -105,79 +89,17 @@ function resolveSkillGlyphType(skill) {
 
 export function SkillGlyph({ skill, size = 24, color = ACC }) {
   const t = resolveSkillGlyphType(skill);
-  const p = {
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.8,
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
+  const iconMap = {
+    trig: Triangle,
+    area: AreaChart,
+    slope: TrendingUp,
+    stats: BarChart3,
+    fraction: PieChart,
+    graph: LineChart,
+    sequence: GitCommitHorizontal,
+    geometry: Hexagon,
+    spark: Sparkles,
   };
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" style={{ color }} aria-hidden="true">
-      {t === "trig" && (
-        <>
-          <path {...p} d="M4 18h16" />
-          <path {...p} d="M6 18l5-8 7 8" />
-          <path {...p} d="M14 8c1.5.6 2.5 1.8 3 3.3" />
-        </>
-      )}
-      {t === "area" && (
-        <>
-          <path {...p} d="M4 18h16" />
-          <path {...p} d="M4 18c2.8-6 5.8-8 10-8 2.2 0 4 .6 6 2" />
-          <path d="M4 18c2.8-6 5.8-8 10-8 2.2 0 4 .6 6 2v6H4z" fill="currentColor" opacity=".2" />
-        </>
-      )}
-      {t === "slope" && (
-        <>
-          <path {...p} d="M4 18h16M6 6v12" />
-          <path {...p} d="M7 15l9-7" />
-          <path {...p} d="M14.8 8.2l1.8-.6-.6 1.8" />
-        </>
-      )}
-      {t === "stats" && (
-        <>
-          <path {...p} d="M4 18h16" />
-          <rect x="6" y="12" width="2.4" height="6" rx="1" fill="currentColor" opacity=".35" />
-          <rect x="10.8" y="9" width="2.4" height="9" rx="1" fill="currentColor" opacity=".55" />
-          <rect x="15.6" y="6.5" width="2.4" height="11.5" rx="1" fill="currentColor" opacity=".8" />
-        </>
-      )}
-      {t === "fraction" && (
-        <>
-          <circle {...p} cx="12" cy="12" r="7.5" />
-          <path d="M12 12V4.5a7.5 7.5 0 0 1 6.5 3.8L12 12Z" fill="currentColor" opacity=".26" />
-          <path {...p} d="M12 12l6.5-3.7" />
-        </>
-      )}
-      {t === "graph" && (
-        <>
-          <path {...p} d="M4 18h16M6 6v12" />
-          <path {...p} d="M7 15c2.4-4.4 6.1-7.2 10-8" />
-          <circle cx="16.7" cy="7.2" r="1.1" fill="currentColor" />
-        </>
-      )}
-      {t === "sequence" && (
-        <>
-          <circle {...p} cx="6" cy="16" r="1.6" />
-          <circle {...p} cx="11" cy="12" r="1.6" />
-          <circle {...p} cx="16" cy="8" r="1.6" />
-          <path {...p} d="M7.4 15l2.3-1.8M12.4 11l2.3-1.8" />
-        </>
-      )}
-      {t === "geometry" && (
-        <>
-          <path {...p} d="M12 4l7 4v8l-7 4-7-4V8z" />
-          <path {...p} d="M12 4v8l7 4" />
-          <path {...p} d="M12 12l-7 4" />
-        </>
-      )}
-      {t === "spark" && (
-        <>
-          <path {...p} d="M12 4l2 4.5L18 10l-4 1.5L12 16l-2-4.5L6 10l4-1.5z" />
-          <path {...p} d="M5.5 16.5l.8 1.8 1.8.8-1.8.8-.8 1.8-.8-1.8-1.8-.8 1.8-.8z" />
-        </>
-      )}
-    </svg>
-  );
+  const Icon = iconMap[t] || Sparkles;
+  return <LucideGlyph Icon={Icon} size={size} color={color} stroke={1.9} />;
 }

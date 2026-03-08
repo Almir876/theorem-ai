@@ -1,6 +1,43 @@
 import { buildWeeklyStreakDays } from "../../lib/progressUtils.js";
-import { AppIcon, MasteredGlyph, SkillGlyph, StreakFlame, XPBar } from "../../ui/icons.jsx";
+import { AppIcon, SkillGlyph, StreakFlame, XPBar } from "../../ui/icons.jsx";
 import { ACC, isLocked, prettyLabel } from "../../ui/uiUtils.js";
+
+function MasteryRing({ value, max, size = 62 }) {
+  const safeMax = Math.max(max, 1);
+  const pct = Math.min(value / safeMax, 1);
+  const stroke = 6;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const dashOffset = c * (1 - pct);
+  const gradientId = "mastery-ring-gradient";
+
+  return (
+    <div style={{ width: size, height: size, position: "relative", display: "grid", placeItems: "center" }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" style={{ position: "absolute", inset: 0, transform: "rotate(-90deg)" }}>
+        <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#60A5FA" />
+            <stop offset="100%" stopColor="#2563EB" />
+          </linearGradient>
+        </defs>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1E293B" strokeWidth={stroke} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={`url(#${gradientId})`}
+          strokeWidth={stroke}
+          strokeDasharray={c}
+          strokeDashoffset={dashOffset}
+          strokeLinecap="round"
+          style={{ transition: "stroke-dashoffset .5s ease" }}
+        />
+      </svg>
+      <span style={{ fontWeight: 800, fontSize: 18, color: "#93C5FD", lineHeight: 1 }}>{value}</span>
+    </div>
+  );
+}
 
 export default function Home({ ud, skills, startLesson, skillMeta, allLessons, userName, onOpenSettings }) {
   const totalXP = ud.xp + Object.values(skills).reduce((s, k) => s + (k.xp || 0), 0);
@@ -9,6 +46,7 @@ export default function Home({ ud, skills, startLesson, skillMeta, allLessons, u
   const doneDays = buildWeeklyStreakDays(ud.streak, ud.lastStreakDate);
   const activeSkill = (skillMeta || []).find((s) => !skills[s.id]?.mastered && !isLocked(s.id, skills, skillMeta));
   const masteredCount = (skillMeta || []).filter((s) => skills[s.id]?.mastered).length;
+  const totalSkills = (skillMeta || []).length;
   const displayName = userName || "Learner";
 
   const now = Date.now();
@@ -48,8 +86,8 @@ export default function Home({ ud, skills, startLesson, skillMeta, allLessons, u
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5, background: "#1E1A10", border: "1px solid #3D2E00", borderRadius: 20, padding: "5px 11px" }}>
-            <AppIcon name="streak" size={24} color="#F59E0B" />
-            <span style={{ color: "#F59E0B", fontWeight: 700, fontSize: 13 }}>{ud.streak}d</span>
+            <AppIcon name="streak" size={24} color="#FB923C" />
+            <span style={{ color: "#FB923C", fontWeight: 700, fontSize: 13 }}>{ud.streak}d</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 5, background: "#0D1A2E", border: "1px solid #1B3460", borderRadius: 20, padding: "5px 11px" }}>
             <AppIcon name="xp" size={20} color={ACC} />
@@ -106,18 +144,18 @@ export default function Home({ ud, skills, startLesson, skillMeta, allLessons, u
 
         <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
           <div className="glass-card stat-tile" style={{ background: "#111317", flex: 1, borderRadius: 16, padding: 14, textAlign: "center", minHeight: 138, display: "grid", gridTemplateRows: "52px 20px 16px", rowGap: 3, alignContent: "center", justifyItems: "center" }}>
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}><MasteredGlyph size={34} /></div>
-            <div style={{ fontWeight: 800, fontSize: 20, color: "#10B981", lineHeight: 1 }}>{masteredCount}</div>
+            <MasteryRing value={masteredCount} max={totalSkills} />
+            <div />
             <div style={{ color: "#6B7280", fontSize: 11 }}>Mastered</div>
           </div>
           <div className="glass-card stat-tile" style={{ background: "#111317", flex: 1, borderRadius: 16, padding: 14, textAlign: "center", minHeight: 138, display: "grid", gridTemplateRows: "52px 20px 16px", rowGap: 3, alignContent: "center", justifyItems: "center" }}>
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}><StreakFlame streak={ud.streak} /></div>
-            <div style={{ fontWeight: 800, fontSize: 20, color: "#F59E0B", lineHeight: 1 }}>{ud.streak}</div>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}><StreakFlame streak={ud.streak} color="#FB923C" /></div>
+            <div style={{ fontWeight: 800, fontSize: 20, color: "#FB923C", lineHeight: 1 }}>{ud.streak}</div>
             <div style={{ color: "#6B7280", fontSize: 11 }}>Day Streak</div>
           </div>
           <div className="glass-card stat-tile" style={{ background: "#111317", flex: 1, borderRadius: 16, padding: 14, textAlign: "center", minHeight: 138, display: "grid", gridTemplateRows: "52px 20px 16px", rowGap: 3, alignContent: "center", justifyItems: "center" }}>
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}><AppIcon name="xp" size={34} color={ACC} /></div>
-            <div style={{ fontWeight: 800, fontSize: 20, color: ACC, lineHeight: 1 }}>{totalXP}</div>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}><AppIcon name="xp" size={34} color="#FACC15" /></div>
+            <div style={{ fontWeight: 800, fontSize: 20, color: "#FACC15", lineHeight: 1 }}>{totalXP}</div>
             <div style={{ color: "#6B7280", fontSize: 11 }}>Total XP</div>
           </div>
         </div>
